@@ -2,7 +2,7 @@
 
 var fs = require("fs");
 
-var ini = require('ini')
+var ini = require('ini');
 
 var multiparty = require('multiparty');
 
@@ -31,33 +31,31 @@ module.exports = {
                         fs.readFile(files.upload[0].path, 'UCS-2', (err, data) => {
                             if (err) return callback(err);
 
-                            console.log(data);
-
                             data = data.replace("Windows Registry Editor Version 5.00","");
-                            console.log(data);
 
-                            var config = ini.parse(data);
-
-                            File.create({
-
-                                affilateId: fields.affilate,
-                                machineInfo: config
-
-                            }, (err, file) => {
-                                if (err) return callback(err);
-
-                                callback(null, file);
-                            });
+                            callback (fields, data)
 
                         });
 
 
                     });
 
-                }
+                }, (fields, data) => {
 
-            ],
-            (err) => {
+                    var config = ini.parse(data);
+
+                    File.create({
+
+                        affilateId: fields.affilate,
+                        machineInfo: config
+
+                    }, (err, file) => {
+                        if (err) return callback(err);
+
+                        callback(null, file);
+                    });
+                
+            }], (err) => {
                 if (err) return next(err);
 
                 res.redirect("/")
@@ -65,30 +63,4 @@ module.exports = {
         );
 
     }
-
-    /*create: (req, res, next) => {
-
-     async.waterfall([
-
-     callback => {
-
-     File.create({
-     affilateid: req.body.affilate
-     }, (err, file) => {
-     if (err) return callback(err);
-
-     callback(null, file);
-     });
-     }
-
-     ],
-     (err) => {
-     if (err) return next(err);
-
-     res.redirect("/")
-     }
-     );
-
-     }*/
-
 };
